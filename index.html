@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>raitis.veinbahs.lv</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: white;
+    }
+
+    .video-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .noise-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.05) 2px, transparent 0);
+      background-size: 8px 8px;
+    }
+  </style>
+</head>
+<body>
+  <video class="video-background" autoplay loop muted playsinline>
+    <source src="frontpage.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+  <div class="noise-overlay"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // document.querySelector('video').playbackRate = 0.25
+    })
+  </script>
+</body>
+</html>
