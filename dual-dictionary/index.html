@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script>
+  function arrayRotate(arr, count) {
+    const len = arr.length
+    arr.push(...arr.splice(0, (-count % len + len) % len))
+    return arr
+  }
+
+  //
+
+  let counter = 0
+  function wordChange() {
+    counter += 1
+    let lastCounter = counter
+
+    setTimeout(() => { if (lastCounter == counter) applyWord() }, 300)
+  }
+
+  function setAnchor(anchor) {
+    location.href = "#" + anchor
+  }
+
+  function getWords() {
+    let words = document.querySelector(".word").value.split(/[ \n]/)
+    return words.filter(word => word.length > 0)
+  }
+
+  function setWord(word) {
+    document.querySelector(".word").value = word
+  }
+
+  function applyWord() {
+    let en = document.querySelector(".en")
+    let de = document.querySelector(".de")
+
+    let words = getWords()
+    let wordsEnc = words.map(word => encodeURI(word))
+    let wordEnc = (wordsEnc || [''])[0]
+
+    // console.log(`words: ${words} // wordsEnc: ${wordsEnc} // wordEnc: ${wordEnc}`)
+
+    en.src = `https://en.wiktionary.org/wiki/${wordEnc}#German`
+    de.src = `https://de.wiktionary.org/wiki/${wordEnc}#${wordEnc}_(Deutsch)`
+
+    setAnchor(wordsEnc.join('-'))
+  }
+
+  let useAnchor = (event) => {
+    if (location.hash.length > 2) {
+      let anchor = location.hash.substr(1)
+      setWord(decodeURI(anchor).replaceAll('-', '\n'))
+      applyWord()
+    }
+  }
+
+  let rotateWord = (direction) => {
+    setWord(arrayRotate(getWords(), direction).join('\n'))
+    applyWord()
+  }
+
+  addEventListener("DOMContentLoaded", useAnchor)
+  addEventListener("hashchange", useAnchor)
+</script>
+<style>
+  body { margin-top: 0; }
+  .container { display: flex; height: calc(100vh - 60px); flex-direction: column; }
+
+  .ui { display: flex; flex-direction: row; justify-content: center; padding: 20px 0; }
+  .word { display: block; width: 300px; font-family: sans-serif; }
+  .next, .prev { display: block; margin: 0 0 0 10px; }
+
+  .en, .de { flex-grow: 1; border: 0; }
+  .en { background: #f5f5f5; }
+  .de { background: #f9f9f9; }
+</style>
+<body>
+  <div class="ui">
+    <textarea class="word" type="text" onkeyup="wordChange()" rows=2></textarea>
+    <button class="prev" onclick="rotateWord(1)"><-</button>
+    <button class="next" onclick="rotateWord(-1)">-></button>
+  </div>
+
+  <div class="container">
+    <iframe class="en"></iframe>
+    <iframe class="de"></iframe>
+  </div>
+</body>
