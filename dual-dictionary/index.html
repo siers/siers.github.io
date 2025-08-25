@@ -22,7 +22,7 @@
   }
 
   function getWords() {
-    let words = document.querySelector(".word").value.split(/[ \n]/)
+    let words = document.querySelector(".word").value.split(/\n/)
     return words.filter(word => word.length > 0)
   }
 
@@ -40,8 +40,13 @@
 
     // console.log(`words: ${words} // wordsEnc: ${wordsEnc} // wordEnc: ${wordEnc}`)
 
-    en.src = `https://en.wiktionary.org/wiki/${wordEnc}#German`
-    de.src = `https://de.wiktionary.org/wiki/${wordEnc}#${wordEnc}_(Deutsch)`
+    if (wordEnc) {
+      en.src = `https://en.wiktionary.org/wiki/${wordEnc}#German`
+      de.src = `https://de.wiktionary.org/wiki/${wordEnc}#${wordEnc}_(Deutsch)`
+    } else {
+      en.src = `about:blank`
+      de.src = `about:blank`
+    }
 
     setAnchor(wordsEnc.join('-'))
   }
