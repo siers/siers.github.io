@@ -4,47 +4,68 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>raitis.veinbahs.lv</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Domine:wght@400..700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      height: 100%;
-      background: white;
-    }
+    .whole { max-width: 900px; margin: auto; }
 
-    .video-background {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-      z-index: 0;
-    }
+    h1 { position: relative; padding: 1em; font-family: "Old Standard TT", serif; font-style: italic; text-align: center; text-transform: uppercase; border: 2px solid #222; }
+    h1 sub { position: absolute; right: 0.5em; bottom: 0.5em; font-size: 50%; }
+    img { float: right; width: 100%; height: auto; padding-top: 20px; bottom: 0; }
+    .text { column-count: 3; font-family: "Domine", serif; font-optical-sizing: auto; }
+    p { text-indent: 2em; }
 
-    .noise-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-      pointer-events: none;
-      background-image: radial-gradient(rgba(255,255,255,0.05) 2px, transparent 0);
-      background-size: 8px 8px;
-    }
+    @media (max-width: 900px) { .text { column-count: 2; } }
+    @media (max-width: 500px) { .text { column-count: 1; } }
   </style>
 </head>
 <body>
-  <video class="video-background" autoplay loop muted playsinline>
-    <source src="frontpage.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-  <div class="noise-overlay"></div>
+  <div class="whole">
+    <h1>
+      Long time moka pot user sets record!<br>
+      <sub>01.09.2025. &nbsp; $6.00</sub>
+    </h1>
+    <div class="text">
+      <p style="margin-top: 0">
+        Long time coffee drinker and moka pot user Raitis Veinbahs (pictured below) has burned yet another moka pot!
+        The incident transpired on September 1st in the sunny seaside town of Jūrmala,
+        where the moka pot in question was resting happily on a gas stove,
+        unaware that it is once again going to be absolutely god damn burned for the 1000th time by its rightful,
+        but very forgetful owner!
+      </p>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // document.querySelector('video').playbackRate = 0.25
-    })
-  </script>
+      <p>
+        Unfortunately, the press has not been able to receive access to footage of the incident,
+        despite repeatedly trying to persuade the owner to release the footage, knowing full well,
+        this mouth-breather must have a camera in someplace or another, as this by now is almost a daily recurrence.
+      </p>
+
+      <p>
+        During the interview with the press, the owner of the moka pot laughed, saying stuff like "I should have known better"
+        and "I really don't care how it tastes in the end, I just drink it",
+        although later showed regret, claiming "this isn't very adultlike" and frankly saying he feels "stupid",
+        after unsuccessfully trying to force the spoiled, smelly drink onto the news crew.
+      </p>
+
+      <p>
+        Even though such accidents are entirely avoidable and just require basic precautions to prevent them from happening again,
+        there is little hope the steps to mitigate the problem will ever be taken.
+        In response to our inquiry in regards to the incident, the head of the local fire department said:
+        "Incidents of this kind are not out of the ordinary and usually result in little harm,
+        however this rabid specimen really is special and he should have really learned how to operate fire a long time ago."
+      </p>
+
+      <p>
+        Researcher at the University of Latvia has stated that such coffee preparation techniques resemble those of a medieval alchemist with dementia
+        and has called upon his friends and family to protest the sale of moka pots and in hopes to avoid "bad coffee" in the neighborhood and urged
+        others to do the same.
+      </p>
+
+      <img src="raitis.jpg">
+    </div>
+  </div>
 </body>
 </html>
