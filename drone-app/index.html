@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Drone app</title>
+    <style>
+      html { margin: 0; padding: 0; background: #222; font-size: 3em; color: white; }
+      body { margin: 0; padding: 0; }
+      .stop { position: absolute; top: 1em; left: 1em; }
+
+      .wrap { height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+      .note { font-weight: 700; font-size: 60vmin; display: inline-block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); transition: transform 450ms ease; }
+    </style>
+  </head>
+  <body>
+    <a class="stop" onclick="stop">stop</a>
+
+    <div class="wrap">
+      <div class="note"></div>
+    </div>
+
+    <script>
+      let audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+      let tones = [] // see getTones()
+      let osc
+
+      function shiftBy(arr, n) {
+        const len = arr.length;
+        if (len === 0) return [];
+        n = ((n % len) + len) % len; // normalize
+        return arr.slice(-n).concat(arr.slice(0, len - n));
+      }
+
+      function createOscillator(fundamental) {
+        let osc = audioCtx.createOscillator()
+
+        // Define harmonics (real = cos terms, imag = sin terms)
+        // Index 0 unused, index n = nth harmonic
+        const real = new Float32Array([0, 1, 0.25, 0.125]) // fundamental + 2f + 3f
+        const imag = new Float32Array(real.length) // all 0 = no phase shift
+
+        const wave = audioCtx.createPeriodicWave(real, imag)
+        osc.setPeriodicWave(wave)
+
+        osc.frequency.value = fundamental
+
+        return osc
+      }
+
+      function getHash() {
+        return location.hash.substr(1) || 'C-G-D-A-E-B-Gb-Db-Ab-Eb-Bb-F'
+      }
+
+      function fromPianoToFreq(keyNr) {
+        return 2 ** ((keyNr - 49) / 12) * 442
+      }
+
+      function getTones() {
+        return getHash().split('-').map(t => {
+          var letterDict = {A: 49, B: 51, C: 52, D: 54, E: 56, F: 57, G: 59}
+          var accidentalDict = {b: -1, s: 1, i: 1, is: 1, es: -2, '': 0}
+
+          var letter = t.match(/^[a-z]/i)[0].toUpperCase()
+          var accidental = (t.match(/^[a-z](b|s|i|is|es)/i) || [])[1] || ''
+          var number = (t.match(/\d+$/) || 4) - 4
+
+          return [t, fromPianoToFreq(letterDict[letter] + 12 * number + accidentalDict[accidental])]
+        })
+      }
+
+      function nextTone(by) {
+        tones = shiftBy(tones, by)
+        tone = tones[0]
+
+        document.querySelector('.note').innerHTML = tone[0]
+
+        if (osc) osc.stop(audioCtx.currentTime)
+
+        osc = createOscillator(tone[1])
+        osc.connect(audioCtx.destination)
+        osc.start()
+      }
+
+      function stop(event) {
+        event.stopPropagation()
+        osc.stop()
+      }
+
+      function button(event, key) {
+        if (key == 's' || key == 'Escape') stop(event)
+        if (key == 'ArrowLeft' || key == 'PageDown' || key == 'ArrowUp') nextTone(1)
+        if (!osc || key == 'ArrowRight' || key == 'PageUp' || key == 'ArrowDown' || key == 'Enter' || key == ' ') nextTone(-1)
+      }
+
+      tones = shiftBy(getTones(), 1)
+
+      addEventListener('click', () => button(null, 'Enter'))
+      addEventListener('keydown', (e) => button(event, e.key))
+
+      document.querySelector('a.stop').addEventListener('click', stop)
+    </script>
+  </body>
+</html>

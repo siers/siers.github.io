@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -32,14 +32,24 @@
 
     const number = document.getElementById('number')
 
-    function nextItem() {
-      var hash = location.hash.substr(1)
-      var things = (hash != '') ? hash.split('-') : [0, 1, 2, 3]
-
-      number.innerHTML = randomItem(things)
+    function getHash() {
+      return location.hash.substr(1)
     }
 
-    setInterval(nextItem, 1500)
+    function getInterval() {
+      return getHash().split(':')[0] || 2100
+    }
+
+    function getThings() {
+      return (getHash() != '') ? getHash().split(':').at(-1).split('-') : [0, 1, 2, 3]
+    }
+
+    function nextItem() {
+      number.innerHTML = randomItem(getThings())
+      setTimeout(nextItem, getInterval())
+    }
+
+    setTimeout(nextItem, getInterval())
 
     // addEventListener("hashchange", document.reload)
     addEventListener("DOMContentLoaded", nextItem)
