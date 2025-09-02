@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flash Command</title>
+<style>
+  :root { --bg: hsl(28 30% 13%); --fg: #efeae6; }
+
+  html,body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  .wrap { height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .number { font-weight: 700; font-size: 60vmin; display: inline-block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); transition: transform 450ms ease; }
+  ::selection { background: transparent; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="number" class="number">0</div>
+  </div>
+
+  <script>
+    function randomItem(array) {
+      return array[Math.floor(Math.random() * array.length)]
+    }
+
+    const number = document.getElementById('number')
+
+    function nextItem() {
+      var hash = location.hash.substr(1)
+      var things = (hash != '') ? hash.split('-') : [0, 1, 2, 3]
+
+      number.innerHTML = randomItem(things)
+    }
+
+    setInterval(nextItem, 1500)
+
+    // addEventListener("hashchange", document.reload)
+    addEventListener("DOMContentLoaded", nextItem)
+  </script>
+</body>
+</html>
