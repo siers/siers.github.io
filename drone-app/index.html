@@ -32,7 +32,67 @@
         return arr.slice(-n).concat(arr.slice(0, len - n));
       }
 
-      function createOscillator(fundamental) {
+      function droneFrequencyDecibels() {
+        // 1. download https://www.youtube.com/watch?v=8P7O1iJYrlg
+        // 2. copy over the audio over itself in audacity 
+        // 3. export spectrum with large bucket size
+        // 4. grep -E "^[^	]+	-[1-3]\d\." spectrum.txt | sed 's/\t/,/; s/^/[/; s/$/],/' | pbcopy
+        return [
+          [109.011841,-36.867085],
+          [109.684753,-27.196688],
+          [110.357666,-21.528101],
+          [111.030579,-28.663891],
+          [111.703491,-33.461903],
+          [219.369507,-36.636318],
+          [220.042419,-28.646994],
+          [220.715332,-28.540955],
+          [221.388245,-35.589928],
+          [437.393188,-38.123917],
+          [438.066101,-32.689838],
+          [438.739014,-27.267790],
+          [439.411926,-33.788879],
+          [440.084839,-24.412590],
+          [440.757751,-29.347168],
+          [441.430664,-29.811642],
+          [442.103577,-32.903976],
+          [659.454346,-39.736221],
+          [661.473083,-38.638454],
+          [878.150940,-37.039749],
+          [878.823853,-33.876373],
+          [879.496765,-29.765196],
+          [880.169678,-28.603935],
+          [880.842590,-37.339531],
+          [881.515503,-31.880564],
+          [882.188416,-37.824593],
+          [883.534241,-39.659309],
+          [1320.254517,-39.170403],
+          [1323.619080,-39.344116],
+          [1763.031006,-39.318600],
+          [1763.703918,-37.138912],
+        ]
+      }
+
+      function baseFrequencyCoefs(baseFreq) {
+        var coefs = droneFrequencyDecibels()
+        var real = new Float32Array(Array(Math.floor(coefs.at(-1)[0])).fill(0))
+        var imag = new Float32Array(Array(Math.floor(coefs.at(-1)[0])).fill(0))
+
+        coefs.forEach(a => real[Math.floor(a[0] * (baseFreq / 440))] = Math.pow(10, a[1] / 20))
+
+        return [new Float32Array(real), new Float32Array(imag)]
+      }
+
+      function createOscillatorBeefy(fundamental) {
+        let osc = audioCtx.createOscillator()
+        const wave = audioCtx.createPeriodicWave(...baseFrequencyCoefs(fundamental))
+
+        osc.setPeriodicWave(wave)
+        osc.frequency.value = 1
+
+        return osc
+      }
+
+      function createOscillatorSimple(fundamental) {
         let osc = audioCtx.createOscillator()
 
         // Define harmonics (real = cos terms, imag = sin terms)
@@ -43,13 +103,13 @@
         const wave = audioCtx.createPeriodicWave(real, imag)
         osc.setPeriodicWave(wave)
 
-        osc.frequency.value = fundamental
+        osc.frequency.value = fundamental / 4
 
         return osc
       }
 
       function getHash() {
-        return location.hash.substr(1) || 'C-G-D-A-E-B-Gb-Db-Ab-Eb-Bb-F'
+        return location.hash.substr(1) || 'C3-G3-D3-A3-E3-B3-Gb3-Db3-Ab3-Eb3-Bb3-F3'
       }
 
       function fromPianoToFreq(keyNr) {
@@ -77,7 +137,7 @@
 
         if (osc) osc.stop(audioCtx.currentTime)
 
-        osc = createOscillator(tone[1])
+        osc = createOscillatorBeefy(tone[1])
         osc.connect(audioCtx.destination)
         osc.start()
       }
@@ -99,6 +159,9 @@
       addEventListener('keydown', (e) => button(event, e.key))
 
       document.querySelector('a.stop').addEventListener('click', stop)
+
+      // TODO:
+      // remove highlight on stop on the tablet
     </script>
   </body>
 </html>
