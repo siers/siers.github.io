@@ -37,7 +37,8 @@
     }
 
     function getInterval() {
-      return getHash().split(':')[0] || 2100
+      var parts = getHash().indexOf(':') == -1 ? [] : getHash().split(':')
+      return parts[0] || 2100
     }
 
     function getThings() {
