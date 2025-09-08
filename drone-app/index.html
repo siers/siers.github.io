@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Drone app</title>
     <style>
-      html { margin: 0; padding: 0; background: #222; font-size: 3em; color: white; }
+      html { margin: 0; padding: 0; background: #222; font-size: 3em; color: white; user-select: none; }
       body { margin: 0; padding: 0; }
       .stop { position: absolute; top: 1em; left: 1em; }
 
@@ -159,9 +159,6 @@
       addEventListener('keydown', (e) => button(event, e.key))
 
       document.querySelector('a.stop').addEventListener('click', stop)
-
-      // TODO:
-      // remove highlight on stop on the tablet
     </script>
   </body>
 </html>
