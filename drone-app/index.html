@@ -118,7 +118,8 @@
 
         if (osc) osc.stop(audioCtx.currentTime)
 
-        osc = createOscillatorBeefy(tone[1])
+        // osc = createOscillatorBeefy(tone[1])
+        osc = createOscillatorSimple(tone[1])
         osc.connect(audioCtx.destination)
         osc.start()
       }
