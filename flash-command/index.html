@@ -107,7 +107,7 @@
         var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
         var semiLabel = ('' + (1 + semi / 2)).replace(/^(\d)$/, "$1.").replace('.5', '½')
 
-        return `${string.name}/${pos.name}p/${semiLabel}/${rightPad(name, 2)}`
+        return `${string.name}/${pos.name}p/${rightPad(name, 2)}/${semiLabel}`
       }
 
       return main()
