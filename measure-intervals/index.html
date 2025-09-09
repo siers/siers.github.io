@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Measure Intervals</title>
+<style>
+button { font-size: 30px; margin-bottom: 30px; }
+.wrap { display: flex; justify-content: column; }
+.wrap div { flex-grow: 1; }
+.times { font-family: monospace; }
+.stats { font-family: monospace; }
+::selection { background: transparent; }
+</style>
+</head>
+<body>
+  <button onclick="reset">reset</button>
+  <div class="wrap">
+    <div class="times"></div>
+    <div class="stats"></div>
+  </div>
+
+  <script>
+    function seconds() {
+      return new Date().getTime() / 1000
+    }
+
+    function roundN(n, r) {
+      var c = Math.pow(10, r)
+      return Math.round(n * c) / c
+    }
+
+    function updates(now) {
+      var freq = roundN((now - start) / clicks.length, 2)
+      stats.innerHTML = `frequency: ${clicks.length ? freq : '-'}<br>`
+      stats.innerHTML += `count: ${clicks.length}`
+    }
+
+    function add() {
+      var now = seconds()
+      var time = roundN(now - start, 2)
+      clicks = clicks.concat([time])
+      times.innerHTML = clicks.join('<br>')
+
+      updates(now)
+    }
+
+    var clicks = []
+    var start = seconds()
+
+    var times = document.querySelector('.times')
+    var stats = document.querySelector('.stats')
+    document.querySelector('html').addEventListener('click', add)
+    document.addEventListener('DOMContentLoaded', _ => updates(start))
+  </script>
+</body>
+</html>
