@@ -17,7 +17,7 @@
 
   .wrap { height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .number { font-weight: 700; font-size: 60vmin; display: inline-block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); transition: transform 450ms ease; }
-  .wrap[data-mode=violin] .number { font-family: monospace; font-size: 50px; }
+  .wrap[data-mode=violin] .number { font-family: monospace; font-size: 60px; }
   ::selection { background: transparent; }
 </style>
 </head>
@@ -27,7 +27,27 @@
   </div>
 
   <script>
-    function randomViolinNote() {
+    function randomViolinNote(string, pos, semi) {
+      var [s_, f_, n_] = ['♯', '♭', '♮']
+
+      var strings = [
+        {name: 'G', number: 0},
+        {name: 'D', number: 1},
+        {name: 'A', number: 2},
+        {name: 'E', number: 3},
+      ]
+
+      var positions = [
+        {name: '1', count: 1, semi: 2},
+        {name: '2', count: 2, semi: 4},
+        {name: '3', count: 3, semi: 5},
+        {name: '4', count: 4, semi: 7},
+        {name: '5', count: 5, semi: 9},
+      ]
+
+      // TODO: make -1 a valid position semitone
+      var positionSemitones = [-1, 0, 1, 2, 3, 4, 5, 6]
+
       function log(x) {
         // console.log(x)
       }
@@ -36,81 +56,62 @@
         return from + Math.floor(Math.random() * (to - from + 1))
       }
 
-      function shuffle(array) {
+      function pick(array) {
         return array[randInt(0, array.length - 1)]
       }
 
-      function randomPositionSemitone() {
-        return randInt(0, 6)
-      }
-
-      function randomPosition() {
-        return shuffle([
-          {name: '1', semi: 1},
-          {name: '2', semi: 3},
-          {name: '3', semi: 5},
-          {name: '4', semi: 7},
-          {name: '5', semi: 9},
-        ])
-      }
-
-      function randomString() {
-        return shuffle([
-          {name: 'G', number: 0},
-          {name: 'D', number: 1},
-          {name: 'A', number: 2},
-          {name: 'E', number: 3},
-        ])
-      }
-
       // input: piano key number
-      function nameNoteRandomly(semi) {
-        log(semi)
-        log([
-          ['A'],
-          ['A#', 'Bb'],
-          ['B', 'Cb'],
-          ['C', 'B#'],
-          ['C#', 'Db'],
-          ['D'],
-          ['D#', 'Eb'],
-          ['E'],
-          ['F'],
-          ['F#', 'Gb'],
-          ['G'],
-          ['G#', 'Ab'],
-        ][semi % 12])
-        return shuffle([
-          ['A'],
-          ['A#', 'Bb'],
-          ['B', 'Cb'],
-          ['C', 'B#'],
-          ['C#', 'Db'],
-          ['D'],
-          ['D#', 'Eb'],
-          ['E'],
-          ['F'],
-          ['F#', 'Gb'],
-          ['G'],
-          ['G#', 'Ab'],
-        ][(24 + semi) % 12]) // replace all to unicode sharps/flats
+      function nameNote(semi) {
+        var und = undefined
+        var notes = [
+          {f: und, n: 'A', s: und},
+          {f: 'B', n: und, s: 'A'},
+          {f: 'C', n: 'B', s: und},
+          {f: und, n: 'C', s: 'B'},
+          {f: 'D', n: und, s: 'C'},
+          {f: und, n: 'D', s: und},
+          {f: 'E', n: und, s: 'D'},
+          {f: und, n: 'E', s: und},
+          {f: und, n: 'F', s: und},
+          {f: 'G', n: und, s: 'F'},
+          {f: und, n: 'G', s: und},
+          {f: 'A', n: und, s: 'G'},
+        ].map(n => {
+          return {f: n.f && n.f + f_, n: n.n && n.n + n_, s: n.s && n.s + s_}
+        })
+        return notes[(24 + semi) % 12]
       }
 
-      function main() {
-        var string = randomString()
-        var pos = randomPosition()
-        var semi = randomPositionSemitone()
-        var name = nameNoteRandomly(string.number * 7 + pos.semi + semi - 2)
+      // TODO FIX: the random is slightly biased, because it's rand(position) + rand(semitone)
+      function main(string, pos, semi) {
+        string = string !== undefined ? string : pick(strings)
+        pos = pos !== undefined ? pos : pick(positions)
+        semi = semi !== undefined ? semi : pick(positionSemitones)
+        var name = pick(Object.values(nameNote(string.number * 7 + pos.semi + semi - 2)).filter(n => n))
 
         log(string.number * 7, pos.semi, semi - 2)
 
-        var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
-        var semiLabel = ('' + (1 + semi / 2)).replace(/^(\d)$/, "$1.").replace('.5', '½')
+        var fingers = {
+          a: 1
+        }[semi]
+        var finger = 1
 
-        return `${string.name}/${pos.name}p/${rightPad(name, 2)}/${semiLabel}`
+        var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
+        var fingerLabel = ('' + (finger / 2))
+          .replace(/^(\d)$/, "$1.")
+          .replace('.5', '½')
+          .replace('0½', '.½')
+
+        return `${string.name}/${pos.name}p/${rightPad(name, 2)}/${fingerLabel}`
       }
 
-      return main()
+      // console.log(main(strings[3], positions[3]))
+
+      return main(
+        string !== undefined ? strings[string] : undefined,
+        pos !== undefined ? positions[pos] : undefined,
+        semi,
+      )
     }
   </script>
 
