@@ -105,9 +105,9 @@
         log(string.number * 7, pos.semi, semi - 2)
 
         var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
-        var semiLabel = rightPad(semi / 2, 2).replaceAll('.5', '½')
+        var semiLabel = ('' + (1 + semi / 2)).replace(/^(\d)$/, "$1.").replace('.5', '½')
 
-        return `${string.name}/${pos.name}p: ${semiLabel}= ${rightPad(name, 2)}`
+        return `${string.name}/${pos.name}p/${semiLabel}/${rightPad(name, 2)}`
       }
 
       return main()
@@ -154,7 +154,7 @@
 
     setTimeout(nextItem, getInterval())
 
-    addEventListener("hashchange", document.reload)
+    addEventListener("hashchange", () => document.location.reload())
     addEventListener("DOMContentLoaded", nextItem)
   </script>
 </body>
