@@ -15,6 +15,7 @@
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   }
 
+  .stop { position: absolute; top: 1em; left: 1em; font-size: 3em; }
   .wrap { height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .number { font-weight: 700; font-size: 60vmin; display: inline-block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); transition: transform 450ms ease; }
   .wrap[data-mode=violin] .number { font-family: monospace; font-size: 60px; }
@@ -22,6 +23,8 @@
 </style>
 </head>
 <body>
+  <a class="stop" onclick="stop">stop</a>
+
   <div class="wrap">
     <div id="number" class="number">0</div>
   </div>
@@ -49,7 +52,7 @@
       var positionSemitones = [-1, 0, 1, 2, 3, 4, 5, 6]
 
       function log(x) {
-        // console.log(x)
+        console.log(x)
       }
 
       function randInt(from, to) {
@@ -64,22 +67,22 @@
       function nameNote(semi) {
         var und = undefined
         var notes = [
-          {f: und, n: 'A', s: und},
-          {f: 'B', n: und, s: 'A'},
-          {f: 'C', n: 'B', s: und},
-          {f: und, n: 'C', s: 'B'},
-          {f: 'D', n: und, s: 'C'},
-          {f: und, n: 'D', s: und},
-          {f: 'E', n: und, s: 'D'},
-          {f: und, n: 'E', s: und},
-          {f: und, n: 'F', s: und},
-          {f: 'G', n: und, s: 'F'},
-          {f: und, n: 'G', s: und},
-          {f: 'A', n: und, s: 'G'},
+          {s: und, n: 'A', f: und},
+          {s: 'A', n: und, f: 'B'},
+          {s: und, n: 'B', f: 'C'},
+          {s: 'B', n: 'C', f: und},
+          {s: 'C', n: und, f: 'D'},
+          {s: und, n: 'D', f: und},
+          {s: 'D', n: und, f: 'E'},
+          {s: und, n: 'E', f: und},
+          {s: und, n: 'F', f: und},
+          {s: 'F', n: und, f: 'G'},
+          {s: und, n: 'G', f: und},
+          {s: 'G', n: und, f: 'A'},
         ].map(n => {
           return {f: n.f && n.f + f_, n: n.n && n.n + n_, s: n.s && n.s + s_}
         })
-        return notes[(24 + semi) % 12]
+        return notes[(12000 + semi - 49) % 12]
       }
 
       // TODO FIX: the random is slightly biased, because it's rand(position) + rand(semitone)
@@ -87,25 +90,31 @@
         string = string !== undefined ? string : pick(strings)
         pos = pos !== undefined ? pos : pick(positions)
         semi = semi !== undefined ? semi : pick(positionSemitones)
-        var name = pick(Object.values(nameNote(string.number * 7 + pos.semi + semi - 2)).filter(n => n))
-
-        log(string.number * 7, pos.semi, semi - 2)
+        var totalSemitone = 47 + string.number * 7 + pos.semi + semi
+        var name = pick(Object.values(nameNote(totalSemitone)).filter(n => n))
 
         var fingers = {
-          a: 1
+          '-1': ['½'],
+          '0': ['1'],
+          '1': ['1', '2'],
+          '2': ['2'],
+          '3': ['3'],
+          '4': ['3', '4'],
+          '5': ['4'],
+          '6': ['4'],
         }[semi]
         var finger = 1
 
         var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
-        var fingerLabel = ('' + (finger / 2))
-          .replace(/^(\d)$/, "$1.")
-          .replace('.5', '½')
-          .replace('0½', '.½')
+        var fingerLabel = pick(fingers)
+          .replace(/^(\d)$/, '$1.')
+          .replace('½', '.½')
 
-        return `${string.name}/${pos.name}p/${rightPad(name, 2)}/${fingerLabel}`
+        var label = `${string.name}/${pos.name}p/${rightPad(name, 2)}/${fingerLabel}`
+
+        log(`semi = ${semi}, label = ${label}`)
+        return [totalSemitone, label]
       }
-
-      // console.log(main(strings[3], positions[3]))
 
       return main(
         string !== undefined ? strings[string] : undefined,
@@ -113,6 +122,75 @@
         semi,
       )
     }
+  </script>
+
+<script>
+    function shiftBy(arr, n) {
+      const len = arr.length;
+      if (len === 0) return [];
+      n = ((n % len) + len) % len; // normalize
+      return arr.slice(-n).concat(arr.slice(0, len - n));
+    }
+
+    function droneFrequencyDecibels() {
+      return [
+        [110.357666,-31.528101],
+        [220.042419,-28.646994],
+        [440.084839,-24.412590],
+        [660.473083,-38.638454],
+        [880.169678,-28.603935],
+        [1320.254517,-29.170403],
+      ]
+    }
+
+    function baseFrequencyCoefs(baseFreq) {
+      var coefs = droneFrequencyDecibels()
+      var highestHz = Math.floor(Math.max(...coefs.map(x => x[0])))
+      var real = new Float32Array(Array(highestHz).fill(0))
+      var imag = new Float32Array(Array(highestHz).fill(0))
+
+      coefs.forEach(a => real[Math.floor(Math.floor(a[0]) * (baseFreq / 440))] = Math.pow(10, a[1] / 20))
+
+      return [new Float32Array(real), new Float32Array(imag)]
+    }
+
+    function createOscillatorBeefy(fundamental) {
+      let osc = audioCtx.createOscillator()
+      const wave = audioCtx.createPeriodicWave(...baseFrequencyCoefs(fundamental))
+
+      osc.setPeriodicWave(wave)
+      osc.frequency.value = 1
+
+      return osc
+    }
+
+    function fromPianoToFreq(keyNr) {
+      return 2 ** ((keyNr - 49) / 12) * 442
+    }
+
+    function playTone(tone) {
+      if (osc) osc.stop(audioCtx.currentTime)
+
+      osc = createOscillatorBeefy(tone)
+      osc.connect(audioCtx.destination)
+      osc.start()
+    }
+
+    function stop(event) {
+      if (event) event.stopPropagation()
+      if (osc) osc.stop()
+      clearTimeout(timeoutId)
+    }
+
+    function button(event, key) {
+      if (key == 's' || key == 'Escape') stop(event)
+      if (key == 'ArrowLeft' || key == 'PageDown' || key == 'ArrowUp') nextTone(1)
+      if (!osc || key == 'ArrowRight' || key == 'PageUp' || key == 'ArrowDown' || key == 'Enter' || key == ' ') nextTone(-1)
+    }
+
+    let audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    let tones = [] // see getTones()
+    let osc
   </script>
 
   <script>
@@ -145,18 +223,32 @@
     function nextItem() {
       document.querySelector('.wrap').dataset.mode = getMode()
 
-      if (getMode() == 'violin')
-        number.innerHTML = randomViolinNote()
-      else
+      if (getMode() == 'violin') {
+        let [semi, name] = randomViolinNote()
+        number.innerHTML = name
+        tone = semi
+      } else
         number.innerHTML = randomItem(getThings())
 
-      setTimeout(nextItem, getInterval())
+      stop() // must come after `timeoutId = ...`
+
+      timeoutId = setTimeout(nextItem, getInterval())
     }
+
+    function button(event, key) {
+      if (key == 's' || key == 'Escape') stop(event)
+      if (key == 'ArrowLeft' || key == 'PageDown' || key == 'ArrowUp') { playTone(fromPianoToFreq(tone)) }
+      if (key == 'ArrowRight' || key == 'PageUp' || key == 'ArrowDown' || key == 'Enter' || key == ' ') nextItem()
+    }
+
+    let tone
+    let timeoutId
 
     setTimeout(nextItem, getInterval())
 
-    addEventListener("hashchange", () => document.location.reload())
-    addEventListener("DOMContentLoaded", nextItem)
+    addEventListener('hashchange', () => document.location.reload())
+    addEventListener('keydown', (e) => button(event, e.key))
+    addEventListener('DOMContentLoaded', nextItem)
   </script>
 </body>
 </html>
