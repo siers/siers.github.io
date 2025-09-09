@@ -17,6 +17,7 @@
 
   .wrap { height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .number { font-weight: 700; font-size: 60vmin; display: inline-block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); transition: transform 450ms ease; }
+  .wrap[data-mode=violin] .number { font-family: monospace; font-size: 50px; }
   ::selection { background: transparent; }
 </style>
 </head>
@@ -24,6 +25,94 @@
   <div class="wrap">
     <div id="number" class="number">0</div>
   </div>
+
+  <script>
+    function randomViolinNote() {
+      function log(x) {
+        // console.log(x)
+      }
+
+      function randInt(from, to) {
+        return from + Math.floor(Math.random() * (to - from + 1))
+      }
+
+      function shuffle(array) {
+        return array[randInt(0, array.length - 1)]
+      }
+
+      function randomPositionSemitone() {
+        return randInt(0, 6)
+      }
+
+      function randomPosition() {
+        return shuffle([
+          {name: '1', semi: 1},
+          {name: '2', semi: 3},
+          {name: '3', semi: 5},
+          {name: '4', semi: 7},
+          {name: '5', semi: 9},
+        ])
+      }
+
+      function randomString() {
+        return shuffle([
+          {name: 'G', number: 0},
+          {name: 'D', number: 1},
+          {name: 'A', number: 2},
+          {name: 'E', number: 3},
+        ])
+      }
+
+      // input: piano key number
+      function nameNoteRandomly(semi) {
+        log(semi)
+        log([
+          ['A'],
+          ['A#', 'Bb'],
+          ['B', 'Cb'],
+          ['C', 'B#'],
+          ['C#', 'Db'],
+          ['D'],
+          ['D#', 'Eb'],
+          ['E'],
+          ['F'],
+          ['F#', 'Gb'],
+          ['G'],
+          ['G#', 'Ab'],
+        ][semi % 12])
+        return shuffle([
+          ['A'],
+          ['A#', 'Bb'],
+          ['B', 'Cb'],
+          ['C', 'B#'],
+          ['C#', 'Db'],
+          ['D'],
+          ['D#', 'Eb'],
+          ['E'],
+          ['F'],
+          ['F#', 'Gb'],
+          ['G'],
+          ['G#', 'Ab'],
+        ][(24 + semi) % 12]) // replace all to unicode sharps/flats
+      }
+
+      function main() {
+        var string = randomString()
+        var pos = randomPosition()
+        var semi = randomPositionSemitone()
+        var name = nameNoteRandomly(string.number * 7 + pos.semi + semi - 2)
+
+        log(string.number * 7, pos.semi, semi - 2)
+
+        var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
+        var semiLabel = rightPad(semi / 2, 2).replaceAll('.5', '½')
+
+        return `${string.name}/${pos.name}p: ${semiLabel}= ${rightPad(name, 2)}`
+      }
+
+      return main()
+    }
+  </script>
 
   <script>
     function randomItem(array) {
@@ -38,21 +127,34 @@
 
     function getInterval() {
       var parts = getHash().indexOf(':') == -1 ? [] : getHash().split(':')
-      return parts[0] || 2100
+      return parts[0] || 3000
     }
 
     function getThings() {
       return (getHash() != '') ? getHash().split(':').at(-1).split('-') : [0, 1, 2, 3]
     }
 
+    function getMode() {
+      if (JSON.stringify(getThings()) == '["violin"]')
+        return 'violin'
+      else
+        return 'regular'
+    }
+
     function nextItem() {
-      number.innerHTML = randomItem(getThings())
+      document.querySelector('.wrap').dataset.mode = getMode()
+
+      if (getMode() == 'violin')
+        number.innerHTML = randomViolinNote()
+      else
+        number.innerHTML = randomItem(getThings())
+
       setTimeout(nextItem, getInterval())
     }
 
     setTimeout(nextItem, getInterval())
 
-    // addEventListener("hashchange", document.reload)
+    addEventListener("hashchange", document.reload)
     addEventListener("DOMContentLoaded", nextItem)
   </script>
 </body>
