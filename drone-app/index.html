@@ -21,10 +21,6 @@
     </div>
 
     <script>
-      let audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-      let tones = [] // see getTones()
-      let osc
-
       function shiftBy(arr, n) {
         const len = arr.length;
         if (len === 0) return [];
@@ -97,7 +93,11 @@
       function getTones() {
         return getHash().split('-').map(t => {
           var letterDict = {A: 49, B: 51, C: 52, D: 54, E: 56, F: 57, G: 59}
-          var accidentalDict = {b: -1, s: 1, i: 1, is: 1, es: -2, '': 0}
+          var accidentalDict = {
+            b: -1, f: -1, '♭': -1,  es: -1,
+            s: 1,  i: 1,  '♯': 1,   is: 1,
+            '': 0, '♮': 0,
+          }
 
           var letter = t.match(/^[a-z]/i)[0].toUpperCase()
           var accidental = (t.match(/^[a-z](b|s|i|is|es)/i) || [])[1] || ''
@@ -122,18 +122,19 @@
       }
 
       function stop(event) {
-        // BUG: stop on a freshly opened app causes an exception
-        event.stopPropagation()
-        osc.stop()
+        if (event) event.stopPropagation()
+        if (osc) osc.stop()
       }
 
       function button(event, key) {
         if (key == 's' || key == 'Escape') stop(event)
-        if (key == 'ArrowLeft' || key == 'PageDown' || key == 'ArrowUp') nextTone(1)
-        if (!osc || key == 'ArrowRight' || key == 'PageUp' || key == 'ArrowDown' || key == 'Enter' || key == ' ') nextTone(-1)
+        else if (key == 'ArrowLeft' || key == 'PageDown' || key == 'ArrowUp') nextTone(1)
+        else if (!osc || key == 'ArrowRight' || key == 'PageUp' || key == 'ArrowDown' || key == 'Enter' || key == ' ') nextTone(-1)
       }
 
-      tones = shiftBy(getTones(), 1)
+      let audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+      let tones = shiftBy(getTones(), 1)
+      let osc
 
       addEventListener('click', () => button(null, 'Enter'))
       addEventListener('keydown', (e) => button(event, e.key))
