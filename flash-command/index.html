@@ -110,7 +110,9 @@
           .replace(/^(\d)$/, '$1.')
           .replace('½', '.½')
 
-        var label = `${string.name}/${pos.name}p/${rightPad(name, 2)}/${fingerLabel}`
+        var slide = pick('-↑↓'.split(''))
+        var bowing = pick('VΠ'.split(''))
+        var label = `${string.name}/${pos.name}p/${rightPad(name, 2)}/${fingerLabel}/${slide}/${bowing}`
 
         log(`semi = ${semi}, label = ${label}`)
         return [totalSemitone, label]
