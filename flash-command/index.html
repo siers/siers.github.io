@@ -98,7 +98,7 @@
 
         while (true) {
           semiOffset = string.number * 7 + pos.semi + semi
-          if (semiOffset >= 0) break
+          if (semiOffset > 0) break
           string = pick(strings)
           pos = pick(positions)
           semi = pick(positionSemitones)
@@ -118,13 +118,10 @@
           '6': ['4+'],
         }[semi]
         var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
-        var fingerLabel = pick(fingers)
-          .replace(/^(\d)$/, '$1.')
-          .replace('½', '.½')
 
         var slide = pick('-↑↓'.split(''))
         var bowing = pick('VΠ'.split(''))
-        var label = `${string.name}/${pos.name}/${rightPad(name, 2)}/${fingerLabel} ${slide}/${bowing}`
+        var label = `${string.name}/${pos.name}/${rightPad(name, 2)}/${pick(fingers)} ${slide}/${bowing}`
 
         log(`semi = ${semi}, label = ${label}`)
         return [totalSemitone, label]
