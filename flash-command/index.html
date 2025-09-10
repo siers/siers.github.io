@@ -41,11 +41,16 @@
       ]
 
       var positions = [
-        {name: '1', count: 1, semi: 2},
-        {name: '2', count: 2, semi: 4},
-        {name: '3', count: 3, semi: 5},
-        {name: '4', count: 4, semi: 7},
-        {name: '5', count: 5, semi: 9},
+        {name: '.5', count: 0, semi: 1},
+        {name: '1.', count: 1, semi: 2},
+        {name: '2a', count: 2, semi: 3},
+        {name: '2b', count: 3, semi: 4},
+        {name: '3a', count: 4, semi: 5},
+        {name: '3b', count: 5, semi: 6},
+        {name: '4a', count: 6, semi: 7},
+        {name: '4b', count: 7, semi: 8},
+        {name: '5a', count: 8, semi: 9},
+        {name: '5b', count: 8, semi: 10},
       ]
 
       var positionSemitones = [-1, 0, 1, 2, 3, 4, 5, 6]
@@ -85,24 +90,33 @@
       }
 
       function main(string, pos, semi) {
+        var semiOffset
+
         string = string !== undefined ? string : pick(strings)
         pos = pos !== undefined ? pos : pick(positions)
         semi = semi !== undefined ? semi : pick(positionSemitones)
-        var totalSemitone = 47 + string.number * 7 + pos.semi + semi
+
+        while (true) {
+          semiOffset = string.number * 7 + pos.semi + semi
+          if (semiOffset >= 0) break
+          string = pick(strings)
+          pos = pick(positions)
+          semi = pick(positionSemitones)
+        }
+
+        var totalSemitone = 47 + semiOffset
         var name = pick(Object.values(nameNote(totalSemitone)).filter(n => n))
 
         var fingers = {
-          '-1': ['½'],
-          '0': ['1'],
-          '1': ['1', '2'],
-          '2': ['2'],
-          '3': ['3'],
-          '4': ['3', '4'],
-          '5': ['4'],
-          '6': ['4'],
+          '-1': ['.½'],
+          '0': ['1.'],
+          '1': ['1+', '2-'],
+          '2': ['2+'],
+          '3': ['3-'],
+          '4': ['3+'],
+          '5': ['4-'],
+          '6': ['4+'],
         }[semi]
-        var finger = 1
-
         var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
         var fingerLabel = pick(fingers)
           .replace(/^(\d)$/, '$1.')
@@ -110,7 +124,7 @@
 
         var slide = pick('-↑↓'.split(''))
         var bowing = pick('VΠ'.split(''))
-        var label = `${string.name}/${pos.name}p/${rightPad(name, 2)}/${fingerLabel}/${slide}/${bowing}`
+        var label = `${string.name}/${pos.name}/${rightPad(name, 2)}/${fingerLabel} ${slide}/${bowing}`
 
         log(`semi = ${semi}, label = ${label}`)
         return [totalSemitone, label]
@@ -180,12 +194,7 @@
       if (event) event.stopPropagation()
       if (osc) osc.stop()
       clearTimeout(timeoutId)
-    }
-
-    function button(event, key) {
-      if (key == 's' || key == 'Escape') stop(event)
-      if (key == 'ArrowLeft' || key == 'PageDown' || key == 'ArrowUp') nextTone(1)
-      if (!osc || key == 'ArrowRight' || key == 'PageUp' || key == 'ArrowDown' || key == 'Enter' || key == ' ') nextTone(-1)
+      console.log('stopped')
     }
 
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)()
