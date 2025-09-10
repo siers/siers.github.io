@@ -48,7 +48,6 @@
         {name: '5', count: 5, semi: 9},
       ]
 
-      // TODO: make -1 a valid position semitone
       var positionSemitones = [-1, 0, 1, 2, 3, 4, 5, 6]
 
       function log(x) {
@@ -85,7 +84,6 @@
         return notes[(12000 + semi - 49) % 12]
       }
 
-      // TODO FIX: the random is slightly biased, because it's rand(position) + rand(semitone)
       function main(string, pos, semi) {
         string = string !== undefined ? string : pick(strings)
         pos = pos !== undefined ? pos : pick(positions)
@@ -251,6 +249,9 @@
     addEventListener('hashchange', () => document.location.reload())
     addEventListener('keydown', (e) => button(event, e.key))
     addEventListener('DOMContentLoaded', nextItem)
+
+    // TODO #1: the random is slightly biased, because it's rand(position) + rand(semitone)
+    // TODO #2: make every semitone a position, so there are two positions "2" etc.
   </script>
 </body>
 </html>
