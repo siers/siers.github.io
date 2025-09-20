@@ -20,6 +20,7 @@
   .wrap { height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .number { font-weight: 700; font-size: 60vmin; display: inline-block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); transition: transform 450ms ease; text-wrap: nowrap; }
   .wrap[data-mode=violin] .number { font-family: monospace; font-size: 60px; }
+  sub { font-size: xx-large; } /* weird name, but renders as small */
   ::selection { background: transparent; }
 </style>
 </head>
@@ -122,17 +123,17 @@
         pos    = pos === undefined ? pick(positions) : pos
         semi   = semi === undefined ? pick(pos.count > 0 ? positionSemitones : positionSemitones.slice(1)) : semi
 
-        var semiOffset = string.number * 7 + pos.semi + semi
-        var semiTotal = 47 + semiOffset
+        var semiBase = 47 + string.number * 7 + pos.semi
+        var semiTarget = semiBase + semi
 
         var slide  = slide === undefined ? pick('-↑↓'.split('')) : slide
         var bowing = bowing === undefined ? pick('VΠ'.split('')) : bowing
 
-        return {string, pos, semi, semiTotal, slide, bowing}
+        return {string, pos, semiFinger: semi, semiBase, semiTarget, slide, bowing}
       }
 
       function render(input) {
-        var {string, pos, semi, semiTotal, slide, bowing} = input
+        var {string, pos, semiFinger, semiBase, semiTarget, slide, bowing} = input
 
         var fingerMap = {
           '-1': ['.½'],
@@ -145,14 +146,18 @@
           '6': ['4+'],
         }
 
-        return nameNote(semiTotal).map(noteName => {
-          return fingerMap[semi].flatMap(finger => {
+        return nameNote(semiTarget).map(noteName => {
+          var baseNote = pick(nameNote(semiBase))
+          return fingerMap[semiFinger].flatMap(finger => {
             var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
-            var label =
-              `${stringSymbols[string.number].outerHTML}/${pos.name}/${finger}=${rightPad(noteName, 2)}`
+            var label = [
+              stringSymbols[3 - string.number].outerHTML,
+              `${baseNote}<sub>${pos.name}</sub>`,
+              `${rightPad(noteName, 2)}<sub>${finger}</sub>`
+              ].join('')
                 + ` ${slide}/${bowing}`
 
-            return [semiTotal, label]
+            return [semiTarget, label]
           })
         })
       }
@@ -482,12 +487,12 @@
     // DONE
       // violin: remove 4b
       // new format I, II, III, IV
+      // position on note, subscripts for finger
     // TODO
       // show a diatonic interval as the base position
       // slider for interval length
       // violin: open music renderer
       // violin: repeating avoiding with two dimension sum
-      // position on note, subscripts for finger
       // toggles for choices
       // program control, syntax, random interleaving
       // https://indiebubbler.github.io/metro/
