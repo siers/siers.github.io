@@ -15,7 +15,8 @@
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   }
 
-  .stop { position: absolute; top: 1em; left: 1em; font-size: 3em; }
+  .start { position: absolute; top: 1em; left: 1em; font-size: 3em; }
+  .stop { position: absolute; top: 2em; left: 1em; font-size: 3em; }
   .wrap { height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .number { font-weight: 700; font-size: 60vmin; display: inline-block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); transition: transform 450ms ease; text-wrap: nowrap; }
   .wrap[data-mode=violin] .number { font-family: monospace; font-size: 60px; }
@@ -23,10 +24,35 @@
 </style>
 </head>
 <body>
-  <a class="stop" onclick="stop">stop</a>
+  <a class="start" onclick="nextItem()">start</a>
+  <a class="stop" onclick="stop()">stop</a>
 
   <div class="wrap">
     <div id="number" class="number">0</div>
+  </div>
+
+  <div style="display: none" class="string-symbols">
+    <svg class="icon" width="48" height="48" viewBox="0 0 48 48" style="margin-bottom: -9px">
+      <rect x="0" y="30" width="48" height="3" fill="#fff"/>
+    </svg>
+
+    <svg class="icon" width="48" height="48" viewBox="0 0 48 48" style="margin-bottom: -9px">
+      <rect x="0" y="30" width="48" height="3" fill="#fff"/>
+      <rect x="0" y="20" width="48" height="3" fill="#fff"/>
+    </svg>
+
+    <svg class="icon" width="48" height="48" viewBox="0 0 48 48" style="margin-bottom: -9px">
+      <rect x="0" y="30" width="48" height="3" fill="#fff"/>
+      <rect x="0" y="20" width="48" height="3" fill="#fff" />
+      <rect x="0" y="10" width="48" height="3" fill="#fff"/>
+    </svg>
+
+    <svg class="icon" width="48" height="48" viewBox="0 0 48 48" style="margin-bottom: -9px">
+      <rect x="0" y="30" width="48" height="3" fill="#fff"/>
+      <rect x="0" y="20" width="48" height="3" fill="#fff"/>
+      <rect x="0" y="10" width="48" height="3" fill="#fff"/>
+      <rect x="0" y="00" width="48" height="3" fill="#fff"/>
+    </svg>
   </div>
 
   <script>
@@ -105,9 +131,9 @@
         return {string, pos, semi, semiTotal, slide, bowing}
       }
 
-      function render({
-        string, pos, semi, semiTotal, slide, bowing
-      }) {
+      function render(input) {
+        var {string, pos, semi, semiTotal, slide, bowing} = input
+
         var fingerMap = {
           '-1': ['.½'],
           '0': ['1.'],
@@ -122,7 +148,9 @@
         return nameNote(semiTotal).map(noteName => {
           return fingerMap[semi].flatMap(finger => {
             var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
-            var label = `${string.name}/${pos.name}/${finger}=${rightPad(noteName, 2)} ${slide}/${bowing}`
+            var label =
+              `${stringSymbols[string.number].outerHTML}/${pos.name}/${finger}=${rightPad(noteName, 2)}`
+                + ` ${slide}/${bowing}`
 
             return [semiTotal, label]
           })
@@ -385,9 +413,10 @@
     }
 
     function stop(event) {
+      clearTimeout(timeoutId)
       if (event) event.stopPropagation()
       if (osc) osc.stop()
-      clearTimeout(timeoutId)
+      console.log(`clearTimeout(${timeoutId})`)
     }
 
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)()
@@ -446,22 +475,22 @@
     let tone
     let timeoutId
 
-    setTimeout(nextItem, getInterval())
-
     addEventListener('hashchange', () => document.location.reload())
     addEventListener('keydown', (e) => button(event, e.key))
     addEventListener('DOMContentLoaded', nextItem)
 
-    // TODO: show a diatonic interval as the base position
-    // TODO: slider for interval length
-    // TODO: violin: open music renderer
-    // TODO: violin: remove 4b
-    // TODO: violin: repeating avoiding with two dimension sum
-    // TODO: position on note, subscripts for finger
-    // TODO: toggles for choices
-    // TODO: new format I, II, III, IV
-    // TODO: program control, syntax, random interleaving
-    // https://indiebubbler.github.io/metro/
+    // DONE
+      // violin: remove 4b
+      // new format I, II, III, IV
+    // TODO
+      // show a diatonic interval as the base position
+      // slider for interval length
+      // violin: open music renderer
+      // violin: repeating avoiding with two dimension sum
+      // position on note, subscripts for finger
+      // toggles for choices
+      // program control, syntax, random interleaving
+      // https://indiebubbler.github.io/metro/
   </script>
 </body>
 </html>
