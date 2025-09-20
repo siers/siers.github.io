@@ -38,6 +38,8 @@
       return array[randInt(0, array.length - 1)]
     }
 
+    const stringSymbols = document.querySelector('.string-symbols').children
+
     // input: number, number, number, string, string
     // output: [[keyNr, string]]
     function randomViolinNote(string, pos, semi, slide, bowing) {
@@ -86,20 +88,26 @@
         ].map(n => {
           return {f: n.f && n.f + f_, n: n.n && n.n + n_, s: n.s && n.s + s_}
         })
-        return notes[(12000 + semi - 49) % 12]
+        return Object.values(notes[(12000 + semi - 49) % 12]).filter(n => n)
       }
 
-      function main(string, pos, semi, slide, bowing) {
+      function calculate(string, pos, semi, slide, bowing) {
         string = string === undefined ? pick(strings) : string
         pos    = pos === undefined ? pick(positions) : pos
         semi   = semi === undefined ? pick(pos.count > 0 ? positionSemitones : positionSemitones.slice(1)) : semi
 
         var semiOffset = string.number * 7 + pos.semi + semi
-        var totalSemitone = 47 + semiOffset
+        var semiTotal = 47 + semiOffset
 
         var slide  = slide === undefined ? pick('-↑↓'.split('')) : slide
         var bowing = bowing === undefined ? pick('VΠ'.split('')) : bowing
 
+        return {string, pos, semi, semiTotal, slide, bowing}
+      }
+
+      function render({
+        string, pos, semi, semiTotal, slide, bowing
+      }) {
         var fingerMap = {
           '-1': ['.½'],
           '0': ['1.'],
@@ -111,14 +119,18 @@
           '6': ['4+'],
         }
 
-        return Object.values(nameNote(totalSemitone)).filter(n => n).map(noteName => {
+        return nameNote(semiTotal).map(noteName => {
           return fingerMap[semi].flatMap(finger => {
             var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
             var label = `${string.name}/${pos.name}/${finger}=${rightPad(noteName, 2)} ${slide}/${bowing}`
 
-            return [totalSemitone, label]
+            return [semiTotal, label]
           })
         })
+      }
+
+      function main(string, pos, semi, slide, bowing) {
+        return render(calculate(string, pos, semi, slide, bowing))
       }
 
       return main(
@@ -317,7 +329,7 @@
       })
     }
 
-    randomViolinNoteTests()
+    //  randomViolinNoteTests()
   </script>
 
 <script>
@@ -448,6 +460,7 @@
     // TODO: position on note, subscripts for finger
     // TODO: toggles for choices
     // TODO: new format I, II, III, IV
+    // TODO: program control, syntax, random interleaving
     // https://indiebubbler.github.io/metro/
   </script>
 </body>
