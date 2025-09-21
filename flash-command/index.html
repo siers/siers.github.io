@@ -22,14 +22,19 @@
   .wrap[data-mode=violin] .number { font-family: monospace; font-size: 60px; }
   sub { font-size: xx-large; } /* weird name, but renders as small */
   ::selection { background: transparent; }
+  .log { position: absolute; bottom: 0; display: flex; flex-direction: column-reverse; width: 100vw; height: 100vh; margin: 10px; overflow: hidden; opacity: 0.3; color: white; font-family: monospace; }
+  .log p { margin: 0; padding: 0; }
 </style>
 </head>
 <body>
   <a class="start" onclick="nextItem()">start</a>
   <a class="stop" onclick="stop()">stop</a>
 
-  <div class="wrap">
+  <div class="wrap" style="display: block">
     <div id="number" class="number">0</div>
+  </div>
+
+  <div class="log">
   </div>
 
   <div style="display: none" class="string-symbols">
@@ -57,6 +62,32 @@
   </div>
 
   <script>
+    // setTimeout(_ => document.location.reload(), 300)
+  </script>
+
+  <script>
+    const logWindow = document.querySelector('.log')
+
+    function log(print) {
+      if (print === undefined) print = '-- -- --'
+      const e = document.createElement('p')
+      e.innerText = print
+      logWindow.prepend(e)
+      console.log(print)
+    }
+
+    function logKey(key) {
+      key.map(n => log(JSON.stringify(n) + ' ' + n.render))
+    }
+
+    // arrayRotate([1, 2, 3], 1) == [2, 3, 1]
+    function arrayRotate(arr, count) {
+      const len = arr.length
+      const c = len - count
+      arr.push(...arr.splice(0, (-c % len + len) % len))
+      return arr
+    }
+
     function randInt(from, to) {
       return from + Math.floor(Math.random() * (to - from + 1))
     }
@@ -66,6 +97,89 @@
     }
 
     const stringSymbols = document.querySelector('.string-symbols').children
+
+    const names = 'CDEFGAB'.split('')
+    // const namesSharp = ['Ć', 'D́', 'É', 'F́', 'Ǵ', 'Á', 'B́']
+    // const namesFlat = ['C̣', 'Ḍ', 'Ẹ', 'F̣', 'G̣', 'Ạ', 'Ḅ']
+    const namesSharp = ['C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B#']
+    const namesFlat = ['Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bb']
+
+    function findSemitoneCommonKey(a, b) {
+      function renderNote({semi, name, alter}) {
+        if (alter == 0) {
+          return names[name]
+        } if (alter == 1) {
+          return namesSharp[name]
+        } if (alter == -1) {
+          return namesFlat[name]
+        } else {
+          console.log(`bad alter: ${alter}`)
+        }
+      }
+
+      function noteWithRender(note) {
+        return {...note, render: renderNote(note)}
+      }
+
+      function addSharp({semi, name, alter}) {
+        return noteWithRender({semi: semi + 1, name, alter: alter + 1})
+      }
+
+      function addFlat({semi, name, alter}) {
+        return noteWithRender({semi: semi - 1, name, alter: alter - 1})
+      }
+
+      const major = [
+        {semi: 49 + 3 + 0, name: 0, alter: 0},
+        {semi: 49 + 3 + 2, name: 1, alter: 0},
+        {semi: 49 + 3 + 4, name: 2, alter: 0},
+        {semi: 49 + 3 + 5, name: 3, alter: 0},
+        {semi: 49 + 3 + 7, name: 4, alter: 0},
+        {semi: 49 + 3 + 9, name: 5, alter: 0},
+        {semi: 49 + 3 + 11, name: 6, alter: 0},
+      ].map(n => noteWithRender(n))
+
+      function modulateFifth(keyOld, direction) {
+        const key = structuredClone(keyOld)
+        if (direction == 1) {
+          key[3] = addSharp(key[3])
+          return arrayRotate(key, 4)
+        } else if (direction == -1) {
+          key[6] = addFlat(key[6])
+          return arrayRotate(key, 3)
+        } else if (direction == 0) {
+          return key
+        } else {
+          const modulations = [...Array(Math.abs(direction)).keys()]
+          return modulations.reduce((key, _) => modulateFifth(key, Math.sign(direction)), key)
+        }
+      }
+
+      function findCommonKey(a, b) {
+        var af, bf
+        var key = keysMajor.find(k => {
+          af = k.find(({semi}) => semi % 12 == a % 12)
+          bf = k.find(({semi}) => semi % 12 == b % 12)
+
+          return af && bf
+        })
+
+        if (key) {
+          return [key, [af, bf]]
+        }
+      }
+
+      const keysMajor = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6].map(d => {
+        return modulateFifth(major, d)
+      })
+
+      // modulateFifth(major, -1).map(n => log(JSON.stringify(n) + ' ' + renderNote(n)))
+      // log()
+      // modulateFifth(major, 1).map(n => log(JSON.stringify(n) + ' ' + renderNote(n)))
+      // log(keysMajor.map(k => renderNote(k[0])).join())
+
+      return findCommonKey(a, b)
+    }
 
     // input: number, number, number, string, string
     // output: [[keyNr, string]]
@@ -146,19 +260,17 @@
           '6': ['4+'],
         }
 
-        return nameNote(semiTarget).map(noteName => {
-          var baseNote = pick(nameNote(semiBase))
-          return fingerMap[semiFinger].flatMap(finger => {
-            var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
-            var label = [
-              stringSymbols[3 - string.number].outerHTML,
-              `${baseNote}<sub>${pos.name}</sub>`,
-              `${rightPad(noteName, 2)}<sub>${finger}</sub>`
-              ].join('')
-                + ` ${slide}/${bowing}`
+        const [key, [baseNote, targetNote]] = findSemitoneCommonKey(semiBase, semiTarget)
+        return fingerMap[semiFinger].map(finger => {
+          var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
+          var label = [
+            stringSymbols[3 - string.number].outerHTML,
+            `${baseNote.render}<sub>${pos.name}</sub>`,
+            `${targetNote.render}<sub>${finger}</sub>`
+            ].join('')
+              + ` ${slide}/${bowing}`
 
-            return [semiTarget, label]
-          })
+          return [semiTarget, label]
         })
       }
 
@@ -421,7 +533,6 @@
       clearTimeout(timeoutId)
       if (event) event.stopPropagation()
       if (osc) osc.stop()
-      console.log(`clearTimeout(${timeoutId})`)
     }
 
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)()
