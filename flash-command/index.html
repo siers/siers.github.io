@@ -99,17 +99,13 @@
     const stringSymbols = document.querySelector('.string-symbols').children
 
     const names = 'CDEFGAB'.split('')
-    // const namesSharp = ['Ć', 'D́', 'É', 'F́', 'Ǵ', 'Á', 'B́']
-    // const namesFlat = ['C̣', 'Ḍ', 'Ẹ', 'F̣', 'G̣', 'Ạ', 'Ḅ']
-    const namesSharp = ['C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B#']
-    const namesFlat = ['Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bb']
 
     class ToneLib {
       renderNote({semi, name, alter}) {
         switch (alter) {
           case 0: return names[name]
-          case 1: return namesSharp[name]
-          case -1: return namesFlat[name]
+          case 1: return `${names[name]}#`
+          case -1: return `${names[name]}b`
           case 2: return `${names[name]}##`
           case -2: return `${names[name]}bb`
           default:
@@ -252,35 +248,13 @@
         {name: '3b', count: 5, semi: 6},
         {name: '4.', count: 6, semi: 7},
         {name: '5a', count: 8, semi: 8},
-        {name: '5b', count: 8, semi: 9},
-        {name: '6a', count: 8, semi: 10},
-        {name: '6b', count: 8, semi: 11},
-        {name: '7.', count: 8, semi: 12},
+        {name: '5b', count: 9, semi: 9},
+        {name: '6a', count: 10, semi: 10},
+        {name: '6b', count: 11, semi: 11},
+        {name: '7.', count: 11, semi: 12},
       ]
 
       var positionSemitones = [-1, 0, 1, 2, 3, 4, 5, 6]
-
-      // input: piano key number
-      function nameNote(semi) {
-        var und = undefined
-        var notes = [
-          {s: und, n: 'A', f: und},
-          {s: 'A', n: und, f: 'B'},
-          {s: und, n: 'B', f: 'C'},
-          {s: 'B', n: 'C', f: und},
-          {s: 'C', n: und, f: 'D'},
-          {s: und, n: 'D', f: und},
-          {s: 'D', n: und, f: 'E'},
-          {s: und, n: 'E', f: und},
-          {s: und, n: 'F', f: und},
-          {s: 'F', n: und, f: 'G'},
-          {s: und, n: 'G', f: und},
-          {s: 'G', n: und, f: 'A'},
-        ].map(n => {
-          return {f: n.f && n.f + f_, n: n.n && n.n + n_, s: n.s && n.s + s_}
-        })
-        return Object.values(notes[(12000 + semi - 49) % 12]).filter(n => n)
-      }
 
       function calculate(string, pos, semi, slide, bowing) {
         string = string === undefined ? pick(strings) : string
