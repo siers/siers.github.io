@@ -104,8 +104,8 @@
     const namesSharp = ['C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B#']
     const namesFlat = ['Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bb']
 
-    function findSemitoneCommonKey(a, b) {
-      function renderNote({semi, name, alter}) {
+    class ToneLib {
+      renderNote({semi, name, alter}) {
         if (alter == 0) {
           return names[name]
         } if (alter == 1) {
@@ -117,47 +117,49 @@
         }
       }
 
-      function noteWithRender(note) {
-        return {...note, render: renderNote(note)}
+      noteWithRender(note) {
+        return {...note, render: this.renderNote(note)}
       }
 
-      function addSharp({semi, name, alter}) {
-        return noteWithRender({semi: semi + 1, name, alter: alter + 1})
+      addSharp({semi, name, alter}) {
+        return this.noteWithRender({semi: semi + 1, name, alter: alter + 1})
       }
 
-      function addFlat({semi, name, alter}) {
-        return noteWithRender({semi: semi - 1, name, alter: alter - 1})
+      addFlat({semi, name, alter}) {
+        return this.noteWithRender({semi: semi - 1, name, alter: alter - 1})
       }
 
-      const major = [
-        {semi: 49 + 3 + 0, name: 0, alter: 0},
-        {semi: 49 + 3 + 2, name: 1, alter: 0},
-        {semi: 49 + 3 + 4, name: 2, alter: 0},
-        {semi: 49 + 3 + 5, name: 3, alter: 0},
-        {semi: 49 + 3 + 7, name: 4, alter: 0},
-        {semi: 49 + 3 + 9, name: 5, alter: 0},
-        {semi: 49 + 3 + 11, name: 6, alter: 0},
-      ].map(n => noteWithRender(n))
+      major() {
+        return [
+          {semi: 49 + 3 + 0, name: 0, alter: 0},
+          {semi: 49 + 3 + 2, name: 1, alter: 0},
+          {semi: 49 + 3 + 4, name: 2, alter: 0},
+          {semi: 49 + 3 + 5, name: 3, alter: 0},
+          {semi: 49 + 3 + 7, name: 4, alter: 0},
+          {semi: 49 + 3 + 9, name: 5, alter: 0},
+          {semi: 49 + 3 + 11, name: 6, alter: 0},
+        ].map(n => this.noteWithRender(n))
+      }
 
-      function modulateFifth(keyOld, direction) {
+      modulateFifth(keyOld, direction) {
         const key = structuredClone(keyOld)
         if (direction == 1) {
-          key[3] = addSharp(key[3])
+          key[3] = this.addSharp(key[3])
           return arrayRotate(key, 4)
         } else if (direction == -1) {
-          key[6] = addFlat(key[6])
+          key[6] = this.addFlat(key[6])
           return arrayRotate(key, 3)
         } else if (direction == 0) {
           return key
         } else {
           const modulations = [...Array(Math.abs(direction)).keys()]
-          return modulations.reduce((key, _) => modulateFifth(key, Math.sign(direction)), key)
+          return modulations.reduce((key, _) => this.modulateFifth(key, Math.sign(direction)), key)
         }
       }
 
-      function findCommonKey(a, b) {
+      findCommonKey(a, b) {
         var af, bf
-        var key = keysMajor.find(k => {
+        var key = this.keysMajor().find(k => {
           af = k.find(({semi}) => semi % 12 == a % 12)
           bf = k.find(({semi}) => semi % 12 == b % 12)
 
@@ -169,16 +171,16 @@
         }
       }
 
-      const keysMajor = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6].map(d => {
-        return modulateFifth(major, d)
-      })
+      keysMajor() {
+        return [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6].map(d => {
+          return this.modulateFifth(this.major(), d)
+        })
+      }
 
       // modulateFifth(major, -1).map(n => log(JSON.stringify(n) + ' ' + renderNote(n)))
       // log()
       // modulateFifth(major, 1).map(n => log(JSON.stringify(n) + ' ' + renderNote(n)))
       // log(keysMajor.map(k => renderNote(k[0])).join())
-
-      return findCommonKey(a, b)
     }
 
     // input: number, number, number, string, string
@@ -260,7 +262,7 @@
           '6': ['4+'],
         }
 
-        const [key, [baseNote, targetNote]] = findSemitoneCommonKey(semiBase, semiTarget)
+        const [key, [baseNote, targetNote]] = (new ToneLib).findCommonKey(semiBase, semiTarget)
         return fingerMap[semiFinger].map(finger => {
           var rightPad = (s, n) => ('' + s).padEnd(n, ' ').replaceAll(' ', '&nbsp;')
           var label = [
