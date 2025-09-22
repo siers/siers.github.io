@@ -152,8 +152,7 @@
         } else if (direction == 0) {
           return key
         } else {
-          const modulations = [...Array(Math.abs(direction)).keys()]
-          return modulations.reduce((key, _) => this.modulateFifth(key, Math.sign(direction)), key)
+          return this.modulateFifth(this.modulateFifth(key, direction - Math.sign(direction)), Math.sign(direction))
         }
       }
 
