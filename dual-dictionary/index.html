@@ -9,10 +9,13 @@
 
   //
 
+  // const activeIndex = 0 // .at(activeIndex)
+  const activeIndex = -1 // .at(activeIndex)
+
   let counter = 0
   function wordChange() {
     counter += 1
-    let lastCounter = counter
+    const lastCounter = counter
 
     setTimeout(() => { if (lastCounter == counter) applyWord() }, 300)
   }
@@ -22,7 +25,7 @@
   }
 
   function getWords() {
-    let words = document.querySelector(".word").value.split(/\n/)
+    const words = document.querySelector(".word").value.split(/\n/)
     return words.filter(word => word.length > 0)
   }
 
@@ -31,12 +34,12 @@
   }
 
   function applyWord() {
-    let en = document.querySelector(".en")
-    let de = document.querySelector(".de")
+    const en = document.querySelector(".en")
+    const de = document.querySelector(".de")
 
-    let words = getWords()
-    let wordsEnc = words.map(word => encodeURI(word))
-    let wordEnc = (wordsEnc || [''])[0]
+    const words = getWords()
+    const wordsEnc = words.map(word => encodeURI(word))
+    const wordEnc = (wordsEnc || ['']).at(activeIndex)
 
     // console.log(`words: ${words} // wordsEnc: ${wordsEnc} // wordEnc: ${wordEnc}`)
 
@@ -51,16 +54,23 @@
     setAnchor(wordsEnc.join('-'))
   }
 
-  let useAnchor = (event) => {
+  const useAnchor = (event) => {
     if (location.hash.length > 2) {
-      let anchor = location.hash.substr(1)
+      const anchor = location.hash.substr(1)
       setWord(decodeURI(anchor).replaceAll('-', '\n'))
       applyWord()
     }
   }
 
-  let rotateWord = (direction) => {
+  const rotateWord = (direction) => {
     setWord(arrayRotate(getWords(), direction).join('\n'))
+    applyWord()
+  }
+
+  const destroyWord = () => {
+    const newWords = [...getWords()]
+    newWords.splice(activeIndex, 1)
+    setWord(newWords.join('\n'))
     applyWord()
   }
 
@@ -84,6 +94,7 @@
     <textarea class="word" type="text" onkeyup="wordChange()" rows=2></textarea>
     <button class="prev" onclick="rotateWord(1)"><-</button>
     <button class="next" onclick="rotateWord(-1)">-></button>
+    <button class="next" onclick="destroyWord()">x</button>
   </div>
 
   <div class="container">
