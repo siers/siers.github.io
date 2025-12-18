@@ -20,6 +20,10 @@
     setTimeout(() => { if (lastCounter == counter) applyWord() }, 300)
   }
 
+  function getLanguage() {
+    return (new URLSearchParams(window.location.search)).get("lang") || "de"
+  }
+
   function setAnchor(anchor) {
     location.href = "#" + anchor
   }
@@ -48,7 +52,7 @@
 
     if (wordEnc) {
       en.src = `https://en.wiktionary.org/wiki/${wordEnc}#German`
-      de.src = `https://de.wiktionary.org/wiki/${wordEnc}#${wordEnc}_(Deutsch)`
+      de.src = `https://${getLanguage()}.wiktionary.org/wiki/${wordEnc}#${wordEnc}_(Deutsch)`
     } else {
       en.src = `about:blank`
       de.src = `about:blank`
