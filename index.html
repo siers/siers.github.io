@@ -10,12 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Domine:wght@400..700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
-    .whole { max-width: 900px; margin: auto; }
+    article { max-width: 900px; margin: auto; }
 
-    h1 { position: relative; padding: 1em; font-family: "Old Standard TT", serif; font-style: italic; text-align: center; text-transform: uppercase; border: 2px solid #222; }
-    h1 sub { position: absolute; right: 0.5em; bottom: 0.5em; font-size: 50%; }
-    img { float: right; width: 100%; height: auto; padding-top: 20px; bottom: 0; }
-    .text { column-count: 3; font-family: "Domine", serif; font-optical-sizing: auto; }
+    .header { position: relative; font-size: 2em; margin: 0.67em 0; font-family: "Old Standard TT", serif; font-style: italic; text-align: center; text-transform: uppercase; border: 2px solid #222; }
+    .header h1 { font-size: 2rem; margin: 0; padding: 1em; }
+    .header sub { position: absolute; right: 0.5em; bottom: 0.5em; font-size: 1rem; }
+    img { width: 100%; height: auto; padding-top: 20px; bottom: 0; }
+    .text { column-count: 3; font-family: "Domine", serif; font-optical-sizing: auto; clear: both; }
+    .text p:first-child { margin-top: 0; }
     p { text-indent: 2em; }
 
     @media (max-width: 900px) { .text { column-count: 2; } }
@@ -23,13 +25,63 @@
   </style>
 </head>
 <body>
-  <div class="whole">
-    <h1>
-      Long time moka pot user sets record!<br>
-      <sub>01.09.2025. &nbsp; $6.00</sub>
-    </h1>
+  <article>
+    <div class="header">
+      <h1>New times, new trends!</h1>
+
+      <sub>06.01.2026. &nbsp; $6.00</sub>
+    </div>
     <div class="text">
-      <p style="margin-top: 0">
+      <p>
+        The seasons are changing, the clock is ticking and with that, the latest trendy pastime has developed amongst the high-achieving working youth!
+      </p>
+
+      <p>
+        Perhaps initially arising as a counter-response to the grind culture and the never ending hustle,
+        popularized on social media platforms such as TikTok and Instagram (the most popular time annihilation mechanisms of the 2026),
+        a new trend of "drinking coffee and staring at a goddamn wall" has made its debut!
+      </p>
+
+      <p>
+        And as with every trend, the entrepreneurs are quick to try to capitalize off the phenomenon.
+        Seven wall-sitting shops have opened up in the streets of Basel.
+        The current menu mostly consists of a bit of coffee, no newspapers, and a chair.
+        For an extra price of seven dollars, you can also order a few wet patches in front of you drawn by a wet sponge from the "water-baristas".
+        Watching them dry represents the essence of life – having it pass by you.
+      </p>
+
+      <p>
+        Testimonials are calling it the recreational power-house perfectly suited for the dull and feeble, seeking refuge from misunderstanding,
+        as well as the strong-minded, but incapacitated.
+        The first to offer their insights of the activity could say little. They were holding onto dear life by a mere thread, just like the next seven participants.
+      </p>
+
+      <p>
+        The eight customer of the wall-sittery, however, said this, they said: <br>
+        – «I love it, I have no power at all after the heavy week, all I need is wall.» <br>
+        – «Do you prefer this specific wall?», asked our correspondent. <br>
+        – «I lack the capacity to say anything concrete.» <br>
+        – «Are you sure?» <br>
+        – «Wall.» <br>
+      </p>
+
+      <p>
+        They say they'll do anything, but go outside, they can't remember seeing grass.
+        A sterile room recontextualizing the office walls in a positive light, while actually being in the nature doesn't make even a distant second.
+        The modern man has solidified its place in the concrete jungle as number one. Number one in sophistication in plainness.
+      </p>
+
+      <img src="wall.png">
+    </div>
+  </article>
+
+  <article>
+    <div class="header">
+      <h1>Long time moka pot user sets record!</h1>
+      <sub>01.09.2025.</sub>
+    </div>
+    <div class="text">
+      <p>
         Long time coffee drinker and moka pot user Raitis Veinbahs (pictured below) has burned yet another moka pot!
         The incident transpired on September 1st in the sunny seaside town of Jūrmala,
         where the moka pot in question was resting happily on a gas stove,
@@ -66,7 +118,7 @@
 
       <img src="raitis.jpg">
     </div>
-  </div>
+  </article>
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPBQL2ZBYV"></script>
   <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-TPBQL2ZBYV');</script>
