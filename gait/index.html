@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Measure Intervals</title>
+<style>
+* { font-size: 20px; }
+.wrap div { flex-grow: 1; }
+.times { font-family: monospace; }
+.stats { font-family: monospace; }
+::selection { background: transparent; }
+</style>
+</head>
+<body>
+  <button onclick="reset(event)">reset</button>
+  <input class="input" />
+  <br>
+  <br>
+  <div class="wrap">
+    <div class="times"></div>
+    <div class="stats"></div>
+  </div>
+
+  <script>
+    const players = []
+
+    var clicks = []
+    var last = null
+
+    var times = document.querySelector('.times')
+    var stats = document.querySelector('.stats')
+    var input = document.querySelector('.input')
+
+    function reset(e) {
+      e.stopPropagation()
+      players.push()
+      players.push(`${input.value}: ${calc()}`)
+      clicks = []
+      last = null
+      render()
+    }
+
+    function now() {
+      return roundN(new Date().getTime() / 1000, 3)
+    }
+
+    function roundN(n, r) {
+      var c = Math.pow(10, r)
+      return Math.round(n * c) / c
+    }
+
+    function avg(x) {
+      return x.reduce((a,b) => a + b, 0) / x.length
+    }
+
+    function calc() {
+      if (clicks.length == 0) return `start clicking the document`
+
+      const left = clicks.filter((_, idx) => idx % 2 == 0)
+      const right = clicks.filter((_, idx) => idx % 2 == 1)
+
+      return `left ${roundN(avg(left), 3)}, right ${roundN(avg(right), 3)}`
+    }
+
+    function render() {
+      stats.innerHTML = `${players.concat([calc()]).join('<br>')}`
+    }
+
+    function click(e) {
+      if (e.target.tagName != 'HTML') return
+
+      if (last) clicks.push(now() - last)
+      last = now()
+      render()
+    }
+
+    document.querySelector('html').addEventListener('click', click)
+    document.addEventListener('DOMContentLoaded', _ => render())
+  </script>
+</body>
+</html>
