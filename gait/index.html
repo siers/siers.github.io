@@ -81,7 +81,7 @@
       const ravg = roundN(avg(right), 3)
       const perc = middlePointPercDiff(lavg, ravg)
 
-      return `left ${lavg}, right ${ravg}, ${middlePointPercDiff(lavg, ravg)}%`
+      return `left ${lavg}, right ${ravg}, ${Math.abs(middlePointPercDiff(lavg, ravg))}%`
     }
 
     function render() {
