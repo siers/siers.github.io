@@ -13,6 +13,7 @@
 </style>
 </head>
 <body>
+  <button onclick="save(event)">save</button>
   <button onclick="reset(event)">reset</button>
   <input class="input" />
   <br>
@@ -32,10 +33,17 @@
     var stats = document.querySelector('.stats')
     var input = document.querySelector('.input')
 
+    function save(e) {
+      e.stopPropagation()
+      players.push(`${input.value || `person ${players.length + 1}`}: ${calc()}`)
+      clicks = []
+      input.value = ''
+      last = null
+      render()
+    }
+
     function reset(e) {
       e.stopPropagation()
-      players.push()
-      players.push(`${input.value}: ${calc()}`)
       clicks = []
       last = null
       render()
@@ -54,13 +62,26 @@
       return x.reduce((a,b) => a + b, 0) / x.length
     }
 
+    function middlePointPercDiff(a, b) {
+      if (a === NaN || b === NaN) return ``
+
+      return roundN((a - b) / ((a + b) / 2) * 100, 1)
+    }
+
     function calc() {
+      if (players.length != 0 && last == null) return `-`
+      if (players.length != 0 && last != null && clicks.length == 0) return `one more`
+      if (clicks.length == 0 && players.length != 0) return ``
       if (clicks.length == 0) return `start clicking the document`
 
       const left = clicks.filter((_, idx) => idx % 2 == 0)
       const right = clicks.filter((_, idx) => idx % 2 == 1)
 
-      return `left ${roundN(avg(left), 3)}, right ${roundN(avg(right), 3)}`
+      const lavg = roundN(avg(left), 3)
+      const ravg = roundN(avg(right), 3)
+      const perc = middlePointPercDiff(lavg, ravg)
+
+      return `left ${lavg}, right ${ravg}, ${middlePointPercDiff(lavg, ravg)}%`
     }
 
     function render() {
