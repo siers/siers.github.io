@@ -3,9 +3,9 @@
 // The two CACHE_VERSION/PRECACHE_URLS placeholders below are substituted by
 // scripts/build-sw.js after `vite build`, since the built JS/CSS filenames
 // are content-hashed and unknown ahead of time.
-const CACHE_VERSION = 'ace5bdb491a7'
+const CACHE_VERSION = '2dcc47aa9c13'
 const CACHE_NAME = `prfl-${CACHE_VERSION}`
-const PRECACHE_URLS = ["/perflab/assets/index-CXslUhOK.css","/perflab/assets/index-eYoCMWse.js","/perflab/index.html","/perflab/metro.wav"]
+const PRECACHE_URLS = ["/perflab/assets/index-CXslUhOK.css","/perflab/assets/index-DU-Nplfi.js","/perflab/index.html","/perflab/metro.wav"]
 
 self.addEventListener('install', event => {
   event.waitUntil(
